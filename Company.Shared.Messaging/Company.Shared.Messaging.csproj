@@ -1,0 +1,37 @@
+﻿
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <!-- بيانات حزمة NuGet الرسمية -->
+    <PackageId>Company.Shared.Messaging</PackageId>
+    <Version>1.0.11</Version>
+    <Authors>Edrees Dbwon</Authors>
+    <Company>Tahdeth Company</Company>
+    <Title>Company Shared Messaging Engine</Title>
+    <Description>Enterprise-grade dynamic messaging framework wrapping MassTransit and RabbitMQ.</Description>
+    <PackageTags>rabbitmq;masstransit;messaging;event-driven;clean-architecture</PackageTags>
+     
+	  <!-- 1. لضمان تضمين جميع الملفات والـ Attributes في حزمة الـ NuGet -->
+	  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	  <IncludeBuildOutput>true</IncludeBuildOutput>
+  </PropertyGroup>
+
+  <!-- المراجع الداخلية -->
+  <ItemGroup>
+    <ProjectReference Include="..\Company.Shared.Contracts\Company.Shared.Contracts.csproj" />
+  </ItemGroup>
+
+  <!-- المكتبات الخارجية -->
+<!-- المكتبات الخارجية المعتمدة والمستقرة مع .NET 9 -->
+  <ItemGroup>
+    <PackageReference Include="MassTransit" Version="8.3.6" PrivateAssets="none" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.2" />
+  </ItemGroup>
+
+</Project>

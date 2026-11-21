@@ -1,0 +1,6 @@
+@ApiSender7_HostAddress = http://localhost:5050
+
+GET {{ApiSender7_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
