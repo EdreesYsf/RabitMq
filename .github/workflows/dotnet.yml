@@ -1,0 +1,42 @@
+name: Publish NuGet Packages
+
+on:
+  push:
+    branches: [ main ] # يعمل تلقائياً عند الرفع إلى فرع main (عدّله إلى master إذا كان فرعك الرئيسي master)
+  workflow_dispatch:   # يتيح لك تشغيله يدوياً في أي وقت من تبويب Actions
+
+permissions:
+  contents: read
+  id-token: write      # ضروري للمصادقة التلقائية مع NuGet Trusted Publishing
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: Company.Shared.Messaging # مطابق للاسم المسجل في إعدادات NuGet
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x' # عدّل الإصدار إذا كان مشروعك .NET 9 أو غيره
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Pack both libraries
+        run: dotnet pack --configuration Release --no-build --output ./nupkg
+
+      - name: NuGet Login (Trusted Publishing)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: Edreesysf
+
+      - name: Push packages to NuGet
+        run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
