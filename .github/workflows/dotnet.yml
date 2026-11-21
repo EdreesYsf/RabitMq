@@ -2,17 +2,17 @@ name: Publish NuGet Packages
 
 on:
   push:
-    branches: [ main ] # يعمل تلقائياً عند الرفع إلى فرع main (عدّله إلى master إذا كان فرعك الرئيسي master)
-  workflow_dispatch:   # يتيح لك تشغيله يدوياً في أي وقت من تبويب Actions
+    branches: [ master ]
+  workflow_dispatch:
 
 permissions:
   contents: read
-  id-token: write      # ضروري للمصادقة التلقائية مع NuGet Trusted Publishing
+  id-token: write
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    environment: Company.Shared.Messaging # مطابق للاسم المسجل في إعدادات NuGet
+    environment: Company.Shared.Messaging
 
     steps:
       - name: Checkout code
@@ -21,7 +21,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x' # عدّل الإصدار إذا كان مشروعك .NET 9 أو غيره
+          dotnet-version: '8.0.x'
 
       - name: Restore dependencies
         run: dotnet restore
