@@ -8,7 +8,7 @@
 
     <!-- بيانات حزمة NuGet الرسمية -->
     <PackageId>Company.Shared.Messaging</PackageId>
-    <Version>1.0.12</Version>
+    <Version>1.0.13</Version>
     <Authors>Edrees Dbwon</Authors>
     <Company>Tahdeth Company</Company>
     <Title>Company Shared Messaging Engine</Title>

@@ -7,8 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Net.Mail;
 using System.Reflection;
-
-namespace Company.Shared.Messaging.Extensions;
+ 
 public static class MessagingExtensions
 {
     public static IServiceCollection AddCompanyMessaging(
@@ -17,23 +16,18 @@ public static class MessagingExtensions
         Action<IBusRegistrationConfigurator>? configureConsumers = null,
         Action<MessagingOptions>? configureOptions = null)
     {
-        // 1. تسجيل واجهة الناشر القياسية للمكتبة
         services.AddScoped<ICompanyPublisher, CompanyPublisher>();
 
-        // 2. قراءة الإعدادات من appsettings.json وتطبيق أي تخصيص برمجي
         var options = new MessagingOptions();
         configuration.GetSection(MessagingOptions.SectionName).Bind(options);
         configureOptions?.Invoke(options);
 
         services.AddSingleton(options);
 
-        // 3. إعداد MassTransit مع RabbitMQ
         services.AddMassTransit(x =>
         {
-            // تسجيل الـ EndpointNameFormatter المخصص لتطبيق [QueueName]
             x.SetEndpointNameFormatter(new CustomQueueEndpointNameFormatter());
 
-            // تطبيق x-max-priority على جميع الـ RabbitMQ endpoints المهيأة عبر ConfigureEndpoints
             if (options.MaxPriority is > 0)
             {
                 x.AddConfigureEndpointsCallback((context, name, endpointConfigurator) =>
@@ -45,7 +39,6 @@ public static class MessagingExtensions
                 });
             }
 
-            // تسجيل الـ Consumers المارة من مشروع المطور
             configureConsumers?.Invoke(x);
 
             x.UsingRabbitMq((context, cfg) =>
