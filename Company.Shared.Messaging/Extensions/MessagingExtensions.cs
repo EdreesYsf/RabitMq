@@ -33,6 +33,18 @@ public static class MessagingExtensions
             // تسجيل الـ EndpointNameFormatter المخصص لتطبيق [QueueName]
             x.SetEndpointNameFormatter(new CustomQueueEndpointNameFormatter());
 
+            // تطبيق x-max-priority على جميع الـ RabbitMQ endpoints المهيأة عبر ConfigureEndpoints
+            if (options.MaxPriority is > 0)
+            {
+                x.AddConfigureEndpointsCallback((context, name, endpointConfigurator) =>
+                {
+                    if (endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rabbitEndpoint)
+                    {
+                        rabbitEndpoint.SetQueueArgument("x-max-priority", (int)options.MaxPriority.Value);
+                    }
+                });
+            }
+
             // تسجيل الـ Consumers المارة من مشروع المطور
             configureConsumers?.Invoke(x);
 
@@ -49,21 +61,68 @@ public static class MessagingExtensions
                     h.Password(password);
                 });
 
-                // تهيئة الـ Endpoints وتفعيل x-max-priority إذا كانت مضبوطة
-                cfg.ConfigureEndpoints(context, endpointConfigurator =>
-                {
-                    if (options.MaxPriority is > 0 &&
-                        endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rabbitEndpoint)
-                    {
-                        rabbitEndpoint.SetQueueArgument("x-max-priority", (int)options.MaxPriority.Value);
-                    }
-                });
+                cfg.ConfigureEndpoints(context);
             });
         });
 
         return services;
     }
 }
+//public static class MessagingExtensions
+//{
+//    public static IServiceCollection AddCompanyMessaging(
+//        this IServiceCollection services,
+//        IConfiguration configuration,
+//        Action<IBusRegistrationConfigurator>? configureConsumers = null,
+//        Action<MessagingOptions>? configureOptions = null)
+//    {
+//        // 1. تسجيل واجهة الناشر القياسية للمكتبة
+//        services.AddScoped<ICompanyPublisher, CompanyPublisher>();
+
+//        // 2. قراءة الإعدادات من appsettings.json وتطبيق أي تخصيص برمجي
+//        var options = new MessagingOptions();
+//        configuration.GetSection(MessagingOptions.SectionName).Bind(options);
+//        configureOptions?.Invoke(options);
+
+//        services.AddSingleton(options);
+
+//        // 3. إعداد MassTransit مع RabbitMQ
+//        services.AddMassTransit(x =>
+//        {
+//            // تسجيل الـ EndpointNameFormatter المخصص لتطبيق [QueueName]
+//            x.SetEndpointNameFormatter(new CustomQueueEndpointNameFormatter());
+
+//            // تسجيل الـ Consumers المارة من مشروع المطور
+//            configureConsumers?.Invoke(x);
+
+//            x.UsingRabbitMq((context, cfg) =>
+//            {
+//                var host = configuration["RabbitMQ:Host"] ?? "localhost";
+//                var virtualHost = configuration["RabbitMQ:VirtualHost"] ?? "/";
+//                var username = configuration["RabbitMQ:Username"] ?? "guest";
+//                var password = configuration["RabbitMQ:Password"] ?? "guest";
+
+//                cfg.Host(host, virtualHost, h =>
+//                {
+//                    h.Username(username);
+//                    h.Password(password);
+//                });
+
+//                // تهيئة الـ Endpoints وتفعيل x-max-priority إذا كانت مضبوطة
+//                cfg.ConfigureEndpoints(context, endpointConfigurator =>
+//                {
+//                    if (options.MaxPriority is > 0 &&
+//                        endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rabbitEndpoint)
+//                    {
+//                        rabbitEndpoint.SetQueueArgument("x-max-priority", (int)options.MaxPriority.Value);
+//                    }
+//                });
+//            });
+//        });
+
+//        return services;
+//    }
+//}
 //public static class MessagingExtensions
 //{
 //    public static IServiceCollection AddCompanyMessaging(

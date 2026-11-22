@@ -1,6 +1,8 @@
 ﻿using Company.Shared.Contracts;
+using Company.Shared.Messaging.Publishers;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading;
 
 namespace ApiSender7.Controllers;
 
@@ -9,14 +11,15 @@ namespace ApiSender7.Controllers;
 public class TestController : ControllerBase
 {
     private readonly ISendEndpointProvider _sendEndpointProvider;
-
-    public TestController(ISendEndpointProvider sendEndpointProvider)
+    private readonly ICompanyPublisher _publisher;
+    public TestController(ISendEndpointProvider sendEndpointProvider, ICompanyPublisher publisher)
     {
         _sendEndpointProvider = sendEndpointProvider;
+        _publisher = publisher;
     }
 
     [HttpPost("send")]
-    public async Task<IActionResult> Send()
+    public async Task<IActionResult> Send(CancellationToken cancellationToken)
     {
         var envelope = new MessageEnvelope<object>
         {
@@ -27,10 +30,9 @@ public class TestController : ControllerBase
         };
 
         // 1. التوجيه إلى اسم الطابور المخصص للـ Consumer (وهو TestMessage)
-        var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("queue:TestMessage"));
+        await _publisher.SendToQueueAsync("notification-processing-queue",
+              envelope, null, 10, cancellationToken);
 
-        // 2. إرسال الرسالة مباشرة إلى هذا الطابور
-        await endpoint.Send(envelope);
 
         return Ok(new { Status = "Message sent successfully", TraceId = envelope.CorrelationId });
     }
