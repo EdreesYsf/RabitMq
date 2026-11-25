@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Company.Shared.Messaging.Configuration
 {
+    //exchange kinds
     public enum MessagingExchangeType
     {
         Direct,
