@@ -57,9 +57,9 @@ public class CompanyPublisher : ICompanyPublisher
     public async Task SendAsync<T>(
      MessageEnvelope<T> envelope,
      string exchangeName,
-     string routingKey,
-     MessagingExchangeType exchangeType = MessagingExchangeType.Direct,
+     string routingKey, 
      byte? priority = null,
+     MessagingExchangeType? exchangeType = MessagingExchangeType.Direct,
      CancellationToken cancellationToken = default)
      where T : class
     {
