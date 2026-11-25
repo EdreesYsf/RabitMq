@@ -1,4 +1,5 @@
 ﻿using Company.Shared.Contracts;
+using Company.Shared.Messaging.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,7 @@ namespace Company.Shared.Messaging.Publishers
             MessageEnvelope<T> envelope,
             string exchangeName,
             string routingKey,
+            MessagingExchangeType exchangeType = MessagingExchangeType.Direct,
             byte? priority = null,
             CancellationToken cancellationToken = default)
             where T : class;

@@ -55,15 +55,27 @@ public class CompanyPublisher : ICompanyPublisher
     }
 
     public async Task SendAsync<T>(
-        MessageEnvelope<T> envelope,
-        string exchangeName,
-        string routingKey,
-        byte? priority = null,
-        CancellationToken cancellationToken = default)
-        where T : class
+     MessageEnvelope<T> envelope,
+     string exchangeName,
+     string routingKey,
+     MessagingExchangeType exchangeType = MessagingExchangeType.Direct,
+     byte? priority = null,
+     CancellationToken cancellationToken = default)
+     where T : class
     {
-        NormalizeEnvelope(envelope);
-        var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri($"exchange:{exchangeName}"));
+        envelope = NormalizeEnvelope(envelope);
+
+        var rabbitExchangeType = exchangeType switch
+        {
+            MessagingExchangeType.Direct => "direct",
+            MessagingExchangeType.Topic => "topic",
+            MessagingExchangeType.Fanout => "fanout",
+            MessagingExchangeType.Headers => "headers",
+            _ => "direct"
+        };
+
+        var endpoint = await _sendEndpointProvider.GetSendEndpoint(
+            new Uri($"exchange:{exchangeName}?type={rabbitExchangeType}"));
 
         await endpoint.Send(envelope, ctx =>
         {
